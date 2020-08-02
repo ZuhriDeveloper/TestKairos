@@ -4,10 +4,10 @@ SPESIFIKASI
 
 
 SETUP APLIKASI PERTAMA KALI
-1. Create Database dengan Nama TestKairosDB
-2. Execute File SQLScript
-3. Buka Solution , lalu buka file appsettings.json
-	3a. Sesuaikan Connection string dengan lokasi database anda
+1. Gunakan Fitur Import-Data Tier Application pada SQL Server dan target file DB.bacpac
+	1a. Beri Nama TestKairosDB atau lainnya
+2. Buka Solution , lalu buka file appsettings.json
+	3a. Sesuaikan Connection string dengan setting database anda
 
 USER
 User : Administrator@az.com
