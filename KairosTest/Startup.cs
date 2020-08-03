@@ -12,6 +12,9 @@ using Microsoft.EntityFrameworkCore;
 using KairosTest.DbContext;
 using KairosTest.Models;
 using Microsoft.AspNetCore.Identity;
+using KairosTest.Helpers;
+using System.Globalization;
+using Microsoft.AspNetCore.Localization;
 
 namespace KairosTest
 {
@@ -31,19 +34,36 @@ namespace KairosTest
             services.AddDbContext<AppIdentityDbContext>(options => options.UseSqlServer(Configuration["ConnectionStrings:DefaultConnection"]));
             services.AddIdentity<AppUser, IdentityRole>().AddEntityFrameworkStores<AppIdentityDbContext>().AddDefaultTokenProviders();
             services.ConfigureApplicationCookie(opts => opts.LoginPath = "/Account/Login");
-            services.AddControllersWithViews();
+            services.AddRazorPages();
+            services.AddAntiforgery(o => o.HeaderName = "XSRF-TOKEN");
+            services.AddMvc((options) =>
+            {
+                options.ModelBinderProviders.Insert(0, new CustomBinderProvider());
+            });
+
+            //services.AddControllersWithViews();
+            services.AddControllersWithViews().AddRazorRuntimeCompilation();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+
+            //var supportedCultures = new[] { new CultureInfo("id-ID") };
+            //app.UseRequestLocalization(new RequestLocalizationOptions
+            //{
+            //    DefaultRequestCulture = new RequestCulture("id-ID"),
+            //    SupportedCultures = supportedCultures,
+            //    SupportedUICultures = supportedCultures
+            //});
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
             else
             {
-                app.UseExceptionHandler("/Home/Main");
+                app.UseExceptionHandler("/Home/Error");
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }

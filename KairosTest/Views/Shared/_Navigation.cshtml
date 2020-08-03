@@ -28,6 +28,14 @@
                     <li class="@Html.IsSelected(action: "Index")"><a href="@Url.Action("Index", "Role")">Manage Role</a></li>
                 </ul>
             </li>
+            <li class="@Html.IsSelected(controller: "Book")">
+                <a href="#"><i class="fa fa-book"></i> <span class="nav-label" data-i18n="nav.forms">Book</span><span class="fa arrow"></span></a>
+                <ul class="nav nav-second-level collapse @Html.IsSelected(controller: "Book", cssClass: "in")">
+                    <li class="@Html.IsSelected(action: "Index")"><a href="@Url.Action("Index", "Book")">Book Management</a></li>
+                    <li class="@Html.IsSelected(action: "Index")"><a href="@Url.Action("Index", "RentBook")">Rent Book</a></li>
+                    <li class="@Html.IsSelected(action: "Index")"><a href="@Url.Action("Index", "RentReport")">Rent Report</a></li>
+                </ul>
+            </li>
         </ul>
     </div>
 </nav>
