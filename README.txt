@@ -1,5 +1,5 @@
 SPESIFIKASI
--Framework NET Core 3.1
+-Framework NET Core 3.0
 -Database SQL Server 2014
 
 
