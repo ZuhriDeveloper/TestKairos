@@ -20,10 +20,16 @@ namespace KairosTest.Models
         public int ID { get; set; }
 
         public int BookID { get; set; }
+
+        public virtual Book Book { get; set; }
         public decimal PricePerDay { get; set; }
         public int RentLenght { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
+
+        public string UserName { get; set; }
+
+        public decimal Total { get; set; }
 
 
 

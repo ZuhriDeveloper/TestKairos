@@ -11,20 +11,30 @@ using System.Linq;
 using Calculator;
 using System.ServiceModel.Channels;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Identity;
 
 namespace KairosTest.Controllers
 {
-    [Authorize(Roles ="Tenant")]
+    [Authorize]
     public class RentBookController : Controller
     {
         private IConfiguration Configuration { get; }
         private IBook BookMgr { get; }
+        private IRentBook RentMgr { get; }
 
-        public RentBookController(IConfiguration configuration)
+        private RoleManager<IdentityRole> roleManager;
+        private UserManager<AppUser> userManager;
+
+        public RentBookController(IConfiguration configuration, RoleManager<IdentityRole> roleMgr, UserManager<AppUser> userMrg)
         {
             Configuration = configuration;
             BookMgr = new BookRepo(configuration);
+            RentMgr = new RentBookRepo(configuration);
+            roleManager = roleMgr;
+            userManager = userMrg;
         }
+
+        [Authorize(Roles ="Tenant")]
         public ActionResult Index()
         {
             RentBook data = new RentBook();
@@ -37,6 +47,30 @@ namespace KairosTest.Controllers
 
             ViewData["BookOptions"] = bookOptions;
 
+
+            return View(data);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Index(RentBook data)
+        {
+          
+
+            var listBooks = BookMgr.GetListBook();
+            var bookOptions = new SelectList(listBooks.Select(org =>
+            {
+                return new SelectListItem { Text = org.BookTitle, Value = org.ID.ToString() };
+            }), "Value", "Text");
+
+            ViewData["BookOptions"] = bookOptions;
+
+            var book = BookMgr.GetBookByID(data.BookID);
+            data.RentLenght = (data.EndDate - data.StartDate).Days;
+            data.PricePerDay = book.RentPrice;
+            data.UserName = User.Identity.Name;
+            
+            RentMgr.Create(data);
 
             return View(data);
         }
@@ -59,6 +93,21 @@ namespace KairosTest.Controllers
                 var result = Convert.ToInt32(data.RentPrice) * dateDiff;
                 return Json(result); ;
             }  
+        }
+
+        [Authorize(Roles = "Tenant,Admin")]
+        public async Task<ActionResult> ReportAsync()
+        {
+            List<RentBook> listData = RentMgr.GetList();
+            var user = await userManager.FindByNameAsync(User.Identity.Name);
+            var roles = await userManager.GetRolesAsync(user);
+
+            if(!roles.Contains("Admin"))
+            {
+                listData = listData.Where(x => x.UserName == User.Identity.Name).ToList();
+            }
+
+            return View(listData);
         }
 
     }

@@ -52,13 +52,13 @@
                         <div class="form-group row">
                             @Html.LabelFor(model => model.StartDate, htmlAttributes: new { @class = "control-label col-md-2" })
                             <div class="col-md-10">
-                                <input type="text" id="StartDate" />
+                                <input type="text" id="StartDate" asp-for="StartDate" />
                             </div>
                         </div>
                         <div class="form-group row">
                             @Html.LabelFor(model => model.EndDate, htmlAttributes: new { @class = "control-label col-md-2" })
                             <div class="col-md-10">
-                                <input type="text" id="EndDate" />
+                                <input type="text" id="EndDate" asp-for="EndDate" />
                             </div>
                         </div>
                         <div class="form-group row">
