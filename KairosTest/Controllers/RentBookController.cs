@@ -110,6 +110,16 @@ namespace KairosTest.Controllers
                 listData = listData.Where(x => x.UserName == User.Identity.Name).ToList();
             }
 
+            decimal total = 0;
+
+            foreach(var data in listData)
+            {
+                total += (data.PricePerDay * data.RentLenght);
+            }
+
+            var totalDisplay = String.Format("{0:N0}", (total));
+            ViewData["Total"] = totalDisplay;
+
             return View(listData);
         }
 

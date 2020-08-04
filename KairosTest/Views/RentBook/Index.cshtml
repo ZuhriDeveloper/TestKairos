@@ -150,7 +150,7 @@
                 }
             });
 
-           
+
 
             $('#EndDate').datepicker({
                 dateFormat: 'mm/dd/yy',
@@ -255,11 +255,18 @@
             var startDateVal = new Date(startDateValArr[2], startDateValArr[0] - 1, startDateValArr[1]);
             var endDateVal = new Date(endDateValArr[2], endDateValArr[0] - 1, endDateValArr[1]);
 
-            if (endDateVal < startDateVal) {
-                $('#general-date-end').show();
+            if (endDateVal <= startDateVal) {
                 return false;
             } else {
-                $('#general-date-end').hide();
+                return true;
+            }
+        }
+
+        function validateBookId() {
+            var bookid = $('#ddlBook').val();
+            if (bookid <= 0) {
+                return false;
+            } else {
                 return true;
             }
         }
@@ -268,12 +275,21 @@
             e.preventDefault();
 
 
-            var isValid = validateDateEnd();
+            var isValid = validateBookId();
+
+            if (!isValid) {
+                displayErrorMessage('Please choose book.');
+                return false;
+            }
+
+             isValid = validateDateEnd();
 
             if (!isValid) {
                 displayErrorMessage('Date end must be greater than the date start.');
                 return false;
             }
+
+
             $('#frmRentBook').submit();
         });
 
