@@ -83,12 +83,14 @@ namespace KairosTest.Repository
             result.ID = reader.GetInt32(reader.GetOrdinal("ID"));
             result.BookID = reader.GetInt32(reader.GetOrdinal("BookID"));
             result.PricePerDay = reader.GetDecimal(reader.GetOrdinal("PricePerDay"));
+            result.PricePerDayDisplay = String.Format("{0:N0}", result.PricePerDay);
             result.RentLenght = reader.GetInt32(reader.GetOrdinal("RentLenght"));
             result.StartDate = reader.GetDateTime(reader.GetOrdinal("StartDate"));
             result.EndDate = reader.GetDateTime(reader.GetOrdinal("EndDate"));
             result.UserName = reader.GetString(reader.GetOrdinal("UserName"));
             result.Book = BookMgr.GetBookByID(result.BookID);
-            result.Total = result.RentLenght * result.PricePerDay;
+            result.Total = String.Format("{0:N0}", (result.RentLenght * result.PricePerDay));
+
             return result;
 
         }

@@ -1,6 +1,6 @@
 ﻿@model KairosTest.Models.RentBook
 
-@using (Html.BeginForm("Index", "RentBook", FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
+@using (Html.BeginForm("Index", "RentBook", FormMethod.Post, new { @class = "form-horizontal", role = "form", id = "frmRentBook" }))
 {
     @Html.AntiForgeryToken()
 
@@ -68,22 +68,22 @@
                             </div>
                         </div>
                         @*<div class="form-group row">
-            @Html.LabelFor(model => model.BookType, htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                @Html.EditorFor(model => model.BookType)
-                @Html.ValidationMessageFor(model => model.BookType, "", new { @class = "text-danger" })
-            </div>
-        </div>
-        <div class="form-group row">
-            @Html.LabelFor(model => model.RentPrice, htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                @Html.EditorFor(model => model.RentPrice)
-                @Html.ValidationMessageFor(model => model.RentPrice, "", new { @class = "text-danger" })
-            </div>
-        </div>*@
+                                @Html.LabelFor(model => model.BookType, htmlAttributes: new { @class = "control-label col-md-2" })
+                                <div class="col-md-10">
+                                    @Html.EditorFor(model => model.BookType)
+                                    @Html.ValidationMessageFor(model => model.BookType, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                @Html.LabelFor(model => model.RentPrice, htmlAttributes: new { @class = "control-label col-md-2" })
+                                <div class="col-md-10">
+                                    @Html.EditorFor(model => model.RentPrice)
+                                    @Html.ValidationMessageFor(model => model.RentPrice, "", new { @class = "text-danger" })
+                                </div>
+                            </div>*@
                         <div class="form-group">
                             <div class="col-md-offset-2 col-md-10">
-                                <input type="submit" value="Save" class="btn btn-primary" />
+                                <input type="submit" value="Save" id="btnSubmit" class="btn btn-primary" />
 
                                 <div>@ViewBag.Message</div>
                                 <div class="text-danger">@ViewBag.ErrorMessage</div>
@@ -96,6 +96,26 @@
         </div>
     </div>
 }
+
+<!-- Modal validation -->
+<div class="modal fade" id="errorModal" tabindex="-1" role="dialog" aria-labelledby="errorModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="errorModalLabel">Rent Book</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div style="color: red; text-align: center;" id="rentbook-error-content"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-info" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 @section Scripts {
     <environment names="Development,Staging,Production">
@@ -116,20 +136,31 @@
         //});
 
         $(document).ready(function () {
+
+             if ("@TempData["Message"]" == '') {
+            }
+            else {
+                   alert("@TempData["Message"]");
+            }
+
             $('#StartDate').datepicker({
-                dateFormat: 'mm-dd-yy',
+                dateFormat: 'mm/dd/yy',
                 onSelect: function () {
                     CalculatePrice();
                 }
             });
+
+           
 
             $('#EndDate').datepicker({
-                dateFormat: 'mm-dd-yy',
+                dateFormat: 'mm/dd/yy',
                 onSelect: function () {
                     CalculatePrice();
                 }
             });
 
+            $('#StartDate').datepicker('setDate', new Date());
+            $('#EndDate').datepicker('setDate', new Date());
 
             $('#ddlBook').change(function () {
                 GetBookDetail();
@@ -153,7 +184,7 @@
         });
 
         function GetBookDetail() {
-            
+
             var bookid = $('#ddlBook').val();
 
             var urlTarget = '@Url.Action("GetBookDetail", "Book")?bookId=' + bookid;
@@ -217,6 +248,41 @@
                 }
             });
         };
+
+        function validateDateEnd() {
+            var startDateValArr = $('#StartDate').val().split('/');
+            var endDateValArr = $('#EndDate').val().split('/');
+            var startDateVal = new Date(startDateValArr[2], startDateValArr[0] - 1, startDateValArr[1]);
+            var endDateVal = new Date(endDateValArr[2], endDateValArr[0] - 1, endDateValArr[1]);
+
+            if (endDateVal < startDateVal) {
+                $('#general-date-end').show();
+                return false;
+            } else {
+                $('#general-date-end').hide();
+                return true;
+            }
+        }
+
+        $('#btnSubmit').click(function (e) {
+            e.preventDefault();
+
+
+            var isValid = validateDateEnd();
+
+            if (!isValid) {
+                displayErrorMessage('Date end must be greater than the date start.');
+                return false;
+            }
+            $('#frmRentBook').submit();
+        });
+
+        function displayErrorMessage(message) {
+            $('#rentbook-error-content').html(message);
+            $('#errorModal').modal('show');
+        }
+
+
 
 
     </script>

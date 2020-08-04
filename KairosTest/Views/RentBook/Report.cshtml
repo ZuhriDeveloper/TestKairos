@@ -52,9 +52,9 @@
                                     <td class="center"> @Html.DisplayFor(modelItem => item.Book.BookTitle)</td>
                                     <td class="center"> @Html.DisplayFor(modelItem => item.Book.Author)</td>
                                     <td class="center"> @Html.DisplayFor(modelItem => item.Book.BookType)</td>
-                                    <td class="center"> @Html.DisplayFor(modelItem => item.PricePerDay)</td>
+                                    <td class="text-right"> @Html.DisplayFor(modelItem => item.PricePerDayDisplay)</td>
                                     <td class="center"> @Html.DisplayFor(modelItem => item.RentLenght)</td>
-                                    <td class="center">@Html.DisplayFor(modelItem => item.Total) </td>
+                                    <td class="text-right">@Html.DisplayFor(modelItem => item.Total) </td>
 
 
                                 </tr>
@@ -77,21 +77,57 @@
     <environment names="Development,Staging,Production">
         <script src="~/lib/dataTables/datatables.min.js"></script>
         <script src="~/lib/dataTables/dataTables.bootstrap4.min.js"></script>
+        <script src="~/lib/dataTables/jquery.datatables.js"></script>
     </environment>
 
     <script type="text/javascript">
+
+
         $(document).ready(function () {
 
+            jQuery.fn.dataTable.Api.register('sum()', function () {
+                return this.flatten().reduce(function (a, b) {
+                    var x = parseFloat(a) || 0;
+                    var y = parseFloat($(b).attr('data-order')) || 0;
+                    return x + y
+                }, 0);
+            });
+
+
             $('#grid').DataTable({
-                autoWidth: true,
-                pageLength: 25,
-                dom: '<"html5buttons"B>lTfgitp',
-                buttons: [
-                    { extend: 'excel', title: 'ListRent' },
-                    { extend: 'pdf', title: 'ListRent' },
-                ]
+               
+                //autoWidth: true,
+                //pageLength: 25,
+                //dom: '<"html5buttons"B>lTfgitp',
+                //buttons: [
+                //    { extend: 'excel', title: 'ListRent' },
+                //    { extend: 'pdf', title: 'ListRent' },
+                //]
+
+                "footerCallback": function (row, data, start, end, display) {
+                    var api = this.api(),
+                        intVal = function (i) {
+                            return typeof i === 'string' ?
+                                i.replace(/[, Rs]|(\.\d{2})/g, "") * 1 :
+                                typeof i === 'number' ?
+                                    i : 0;
+                        },
+                        total2 = api
+                            .column(5)
+                            .data()
+                            .reduce(function (a, b) {
+                                return intVal(a) + intVal(b);
+                            }, 0);
+
+                    $(api.column(5).footer()).html(
+                        ' ( $' + total2 + ' total)'
+                    );
+                }
 
             });
+
+
+
 
         });
 

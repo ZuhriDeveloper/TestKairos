@@ -72,6 +72,9 @@ namespace KairosTest.Controllers
             
             RentMgr.Create(data);
 
+            ModelState.Clear();
+            TempData["Message"] = "rent successfully saved";
+
             return View(data);
         }
 
