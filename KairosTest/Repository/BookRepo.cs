@@ -27,7 +27,7 @@ namespace KairosTest.Repository
             {
                 using (var cmd = tx.GetCommand())
                 {
-                    cmd.CommandText = @"SELECT ID,BookTitle,Author,BookType,RentPrice FROM Book
+                    cmd.CommandText = @"SELECT ID,BookTitle,Author,BookType,RentPrice,Status FROM Book
                                         WHERE ID = @id";
                     cmd.Parameters.AddWithValue("@id", id);
 
@@ -52,7 +52,7 @@ namespace KairosTest.Repository
             {
                 using (var cmd = tx.GetCommand())
                 {
-                    cmd.CommandText = @"SELECT ID,BookTitle,Author,BookType,RentPrice FROM Book";
+                    cmd.CommandText = @"SELECT ID,BookTitle,Author,BookType,RentPrice,Status FROM Book WHERE Status = 1";
 
                     using (var reader = cmd.ExecuteReader())
                     {
@@ -77,6 +77,8 @@ namespace KairosTest.Repository
             result.Author = reader.GetString(reader.GetOrdinal("Author"));
             result.BookType = reader.GetString(reader.GetOrdinal("BookType"));
             result.RentPrice = reader.GetDecimal(reader.GetOrdinal("RentPrice"));
+            result.Status = reader.GetInt16(reader.GetOrdinal("Status"));
+
 
             return result;
 
@@ -91,8 +93,8 @@ namespace KairosTest.Repository
                 {
 
                     cmd.CommandText = @"INSERT INTO Book
-                                            ( BookTitle,Author,BookType,RentPrice)
-                                    VALUES  ( @BookTitle,@Author,@BookType,@RentPrice);
+                                            ( BookTitle,Author,BookType,RentPrice,Status)
+                                    VALUES  ( @BookTitle,@Author,@BookType,@RentPrice,1);
                                         
                                     SELECT SCOPE_IDENTITY()";
 
@@ -100,6 +102,7 @@ namespace KairosTest.Repository
                     cmd.Parameters.AddWithValue("@Author", data.Author);
                     cmd.Parameters.AddWithValue("@BookType", data.BookType);
                     cmd.Parameters.AddWithValue("@RentPrice", data.RentPrice);
+
 
                     object lastId = cmd.ExecuteScalar();
                     lastId = (lastId == DBNull.Value) ? null : lastId;
@@ -135,6 +138,24 @@ namespace KairosTest.Repository
                 }
             }
 
+        }
+
+        public void Delete(int id)
+        {
+            using (var tx = new SafeTx(Configuration))
+            {
+                using (var cmd = tx.GetCommand())
+                {
+
+                    cmd.CommandText = @"UPDATE Book
+                                           SET Status = 0
+                                           WHERE ID = @Id
+                                            ";
+                    cmd.Parameters.AddWithValue("@ID", id);
+
+                    cmd.ExecuteNonQuery();
+                }
+            }
         }
     }
 }

@@ -13,5 +13,7 @@ namespace KairosTest.Interface
 
         int Create(Book data);
         void Update(Book data);
+
+        void Delete(int id);
     }
 }

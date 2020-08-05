@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity;
 using KairosTest.Models;
 using Microsoft.AspNetCore.Authorization;
+using System.Text;
 
 namespace KairosTest.Controllers
 {
@@ -32,27 +33,31 @@ namespace KairosTest.Controllers
             if (user != null)
                 return View(user);
             else
-            {            
+            {
                 return RedirectToAction("Index");
             }
-             
+
         }
 
         [HttpPost]
         public async Task<IActionResult> Update(string id, string email, string password)
         {
             AppUser user = await userManager.FindByIdAsync(id);
+            StringBuilder sb = new StringBuilder();
             if (user != null)
             {
+
+
                 if (!string.IsNullOrEmpty(email))
                     user.Email = email;
                 else
-                    ModelState.AddModelError("", "Email cannot be empty");
+                    sb.Append("Email cannot be empty.");
+
 
                 if (!string.IsNullOrEmpty(password))
                     user.PasswordHash = passwordHasher.HashPassword(user, password);
                 else
-                    ModelState.AddModelError("", "Password cannot be empty");
+                    sb.Append("Password cannot be empty.");
 
                 if (!string.IsNullOrEmpty(email) && !string.IsNullOrEmpty(password))
                 {
@@ -62,20 +67,31 @@ namespace KairosTest.Controllers
                         TempData["Message"] = "data updated successfully";
                         return RedirectToAction("Index");
                     }
-                     
                     else
+                    {
                         Errors(result);
+                    }
                 }
             }
             else
                 ModelState.AddModelError("", "User Not Found");
+
+            TempData["Error"] = sb.ToString();
+
+
             return View(user);
         }
 
         private void Errors(IdentityResult result)
         {
+            StringBuilder sb = new StringBuilder();
+
             foreach (IdentityError error in result.Errors)
-                ModelState.AddModelError("", error.Description);
+            {
+                sb.Append(error.Description);
+            }
+
+            TempData["Error"] = sb.ToString();
         }
 
         public ViewResult Create() => View();
@@ -97,13 +113,26 @@ namespace KairosTest.Controllers
                     TempData["Message"] = "data successfully created";
                     return RedirectToAction("Index");
                 }
-                 
+
                 else
                 {
                     foreach (IdentityError error in result.Errors)
                         ModelState.AddModelError("", error.Description);
                 }
             }
+            StringBuilder sb = new StringBuilder();
+            //sb.Append("You have a errors:");
+
+            foreach (var modelState in ModelState.Values)
+            {
+                foreach (var error in modelState.Errors)
+                {
+                    sb.Append(error.ErrorMessage);
+                }
+            }
+
+            TempData["Error"] = sb.ToString();
+
             return View(user);
         }
 
@@ -119,7 +148,7 @@ namespace KairosTest.Controllers
                     TempData["Message"] = "data successfully deleted";
                     return RedirectToAction("Index");
                 }
-               
+
                 else
                     Errors(result);
             }

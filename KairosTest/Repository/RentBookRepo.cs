@@ -8,6 +8,7 @@ using KairosTest.Interface;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using System.Data.SqlClient;
+using System.Data;
 
 namespace KairosTest.Repository
 {
@@ -31,8 +32,8 @@ namespace KairosTest.Repository
                 {
 
                     cmd.CommandText = @"INSERT INTO RentBook
-                                            (BookID,PricePerDay,RentLenght,StartDate,EndDate,UserName)
-                                    VALUES  (@BookID,@PricePerDay,@RentLenght,@StartDate,@EndDate,@UserName);
+                                            (BookID,PricePerDay,RentLenght,StartDate,EndDate,UserName,Status)
+                                    VALUES  (@BookID,@PricePerDay,@RentLenght,@StartDate,@EndDate,@UserName,1);
                                         
                                     SELECT SCOPE_IDENTITY()";
 
@@ -60,7 +61,7 @@ namespace KairosTest.Repository
             {
                 using (var cmd = tx.GetCommand())
                 {
-                    cmd.CommandText = @"SELECT ID,BookID,PricePerDay,RentLenght,StartDate,EndDate,UserName FROM RentBook";
+                    cmd.CommandText = @"SELECT ID,BookID,PricePerDay,RentLenght,StartDate,EndDate,UserName,Status FROM RentBook WHERE Status = 1";
 
                     using (var reader = cmd.ExecuteReader())
                     {
@@ -90,9 +91,74 @@ namespace KairosTest.Repository
             result.UserName = reader.GetString(reader.GetOrdinal("UserName"));
             result.Book = BookMgr.GetBookByID(result.BookID);
             result.Total = String.Format("{0:N0}", (result.RentLenght * result.PricePerDay));
+            result.Status = reader.GetInt16(reader.GetOrdinal("Status"));
 
             return result;
 
+        }
+
+        public void Update(RentBook data)
+        {
+            using (var tx = new SafeTx(Configuration))
+            {
+                using (var cmd = tx.GetCommand())
+                {
+                    cmd.CommandText = @"EXEC SpUpdateRent @ID int,
+	                                    @BookId 
+	                                    @PricePerDay ,
+	                                    @RentLength ,
+	                                    @StartDate ,
+	                                    @EndDate ,
+	                                    @UserName ,
+	                                    @Status;";
+
+                    cmd.Parameters.AddWithValue("@ID", data.ID);
+                    cmd.Parameters.AddWithValue("@BookId", data.BookID);
+                    cmd.Parameters.AddWithValue("@PricePerDay", data.PricePerDay);
+                    cmd.Parameters.AddWithValue("@RentLength", data.RentLenght);
+                    cmd.Parameters.AddWithValue("@StartDate", data.StartDate);
+                    cmd.Parameters.AddWithValue("@EndDate", data.EndDate);
+                    cmd.Parameters.AddWithValue("@UserName", data.UserName);
+                    cmd.Parameters.AddWithValue("@Status", data.Status);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+
+        public void Delete(int id)
+        {
+            using (var tx = new SafeTx(Configuration))
+            {
+                using (var cmd = tx.GetCommand())
+                {
+                    cmd.CommandText = @"EXEC SpDeleteRent @ID";
+                    cmd.Parameters.AddWithValue("@ID", id);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+
+        public RentBook GetByID(int id)
+        {
+            RentBook result = new RentBook();
+
+            using (var tx = new SafeTx(Configuration))
+            {
+                using (var cmd = tx.GetCommand())
+                {
+                    cmd.CommandText = @"SELECT ID,BookID,PricePerDay,RentLenght,StartDate,EndDate,UserName,Status FROM RentBook WHERE ID = @ID";
+                    cmd.Parameters.AddWithValue("@ID", id);
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            result = CreateObject(reader);
+                        }
+                    }
+                }
+            }
+
+            return result;
         }
     }
 }

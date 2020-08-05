@@ -31,34 +31,32 @@
                             @Html.LabelFor(model => model.BookTitle, htmlAttributes: new { @class = "control-label col-md-2" })
                             <div class="col-md-10">
                                 @Html.EditorFor(model => model.BookTitle)
-                                @Html.ValidationMessageFor(model => model.BookTitle, "", new { @class = "text-danger" })
                             </div>
                         </div>
                         <div class="form-group row">
                             @Html.LabelFor(model => model.Author, htmlAttributes: new { @class = "control-label col-md-2" })
                             <div class="col-md-10">
                                 @Html.EditorFor(model => model.Author)
-                                @Html.ValidationMessageFor(model => model.Author, "", new { @class = "text-danger" })
                             </div>
                         </div>
                         <div class="form-group row">
                             @Html.LabelFor(model => model.BookType, htmlAttributes: new { @class = "control-label col-md-2" })
                             <div class="col-md-10">
                                 @Html.EditorFor(model => model.BookType)
-                                @Html.ValidationMessageFor(model => model.BookType, "", new { @class = "text-danger" })
                             </div>
                         </div>
                         <div class="form-group row">
                             @Html.LabelFor(model => model.RentPrice, htmlAttributes: new { @class = "control-label col-md-2" })
                             <div class="col-md-10">
                                 @Html.EditorFor(model => model.RentPrice)
-                                @Html.ValidationMessageFor(model => model.RentPrice, "", new { @class = "text-danger" })
+                                @*@Html.ValidationMessageFor(model => model.RentPrice, "", new { @class = "text-danger" })*@
                             </div>
                         </div>
                         <div class="form-group">
                             <div class="col-md-offset-2 col-md-10">
-                                <input type="submit" value="Save" class="btn btn-primary" />
                                 <button type="button" class="btn btn-warning" onclick="location.href='@Url.Action("Index", "Book")'">Cancel</button>
+                                <input type="submit" value="Create" class="btn btn-primary" />
+
                                 <div>@ViewBag.Message</div>
                                 <div class="text-danger">@ViewBag.ErrorMessage</div>
 
@@ -71,6 +69,35 @@
     </div>
 }
 
+<!-- Modal validation -->
+<div class="modal fade" id="infoModal" tabindex="-1" role="dialog" aria-labelledby="errorModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="errorModalLabel">Book Management</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div style="color: dodgerblue; text-align: center;" id="rentbook-info-content">
+                    <ul>
+                    </ul>
+                </div>
+                <div style="color: red; text-align: left;" id="rentbook-error-content">
+                    <ul>
+                    </ul>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-info" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
 @section Scripts {
 
 
@@ -81,6 +108,47 @@
                 var x = $('#RentPrice').val();
                 $('#RentPrice').val(addCommas(x));
             });
+
+
+            $('#RentPrice').keypress(function () {
+                return onlyNumbers(event);
+            });
+
+             if ("@TempData["Error"]" == '') {
+            }
+            else {
+                 displayErrorMessage("@TempData["Error"]");
+            }
+
+              if ("@TempData["Message"]" == '') {
+            }
+            else {
+                  displayInfoMessage("@TempData["Message"]");
+            }
+
+
+            function displayErrorMessage(message) {
+
+                var str_array = message.split('.');
+
+                for (var i = 0; i < str_array.length; i++) {
+                    str_array[i] = str_array[i].replace(/^\s*/, "").replace(/\s*$/, "");
+                    if (str_array[i] != "") {
+                        $('#rentbook-error-content ul').append('<li>' + str_array[i] + '</li>');
+                    }
+
+                }
+                $('#infoModal').modal('show');
+            }
+
+
+            function displayInfoMessage(message) {
+                $('#rentbook-info-content').html(message);
+                $('#infoModal').modal('show');
+            }
+
+
+
         });
 
 

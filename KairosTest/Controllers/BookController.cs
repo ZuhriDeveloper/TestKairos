@@ -8,6 +8,7 @@ using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace KairosTest.Controllers
 {
@@ -46,12 +47,25 @@ namespace KairosTest.Controllers
                 if (ModelState.IsValid)
                 {
                     BookMgr.Create(data);
-                    ViewBag.Message = "Data created successfully";
+                    TempData["Message"] = "Data created successfully";
                     ModelState.Clear();
                     return View();
                 }
                 else
                 {
+                    StringBuilder sb = new StringBuilder();
+                    //sb.Append("You have a errors:");
+
+                    foreach (var modelState in ModelState.Values)
+                    {
+                        foreach (var error in modelState.Errors)
+                        {
+                            sb.Append(error.ErrorMessage);
+                        }
+                    }
+
+                    TempData["Error"] = sb.ToString();
+
                     return View();
                 }
             }
@@ -79,13 +93,25 @@ namespace KairosTest.Controllers
                 if (ModelState.IsValid)
                 {
                     BookMgr.Update(data);
-                    ViewBag.Message = "Data updated successfully";
+                    TempData["Message"] = "Data updated successfully";
                     ModelState.Clear();
                     data = BookMgr.GetBookByID(data.ID);
                     return View(data);
                 }
                 else
                 {
+                    StringBuilder sb = new StringBuilder();
+                    //sb.Append("You have a errors:");
+
+                    foreach (var modelState in ModelState.Values)
+                    {
+                        foreach (var error in modelState.Errors)
+                        {
+                            sb.Append(error.ErrorMessage);
+                        }
+                    }
+
+                    TempData["Error"] = sb.ToString();
                     return View();
                 }
             }
@@ -99,13 +125,19 @@ namespace KairosTest.Controllers
         [HttpGet]
         [ValidateAntiForgeryToken]
         [AllowAnonymous]
-        public JsonResult  GetBookDetail(int bookId)
+        public JsonResult GetBookDetail(int bookId)
         {
             Book data = BookMgr.GetBookByID(bookId);
 
             return Json(data);
 
 
+        }
+
+        public IActionResult Delete(int id)
+        {
+            BookMgr.Delete(id);
+            return RedirectToAction("Index");
         }
     }
 }

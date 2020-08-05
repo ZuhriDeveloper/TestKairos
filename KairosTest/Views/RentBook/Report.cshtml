@@ -2,7 +2,7 @@
 
 
 @{
-ViewBag.Title = "Rent List";
+    ViewBag.Title = "Rent List";
 }
 
 <div class="row wrapper border-bottom white-bg page-heading">
@@ -56,7 +56,7 @@ ViewBag.Title = "Rent List";
                                     <td class="text-right"> @Html.DisplayFor(modelItem => item.PricePerDayDisplay)</td>
                                     <td class="center"> @Html.DisplayFor(modelItem => item.RentLenght)</td>
                                     <td class="text-right">@Html.DisplayFor(modelItem => item.Total) </td>
-                                   
+
                                 </tr>
                             }
                         }
@@ -65,9 +65,13 @@ ViewBag.Title = "Rent List";
                     </tbody>
                     <tfoot>
                         <tr>
-                            <td class="text-right" colspan="5"> Total </td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td class="text-right">Total :</td>
                             <td class="text-right">
-                               @ViewData["Total"]
+                                @ViewData["Total"]
                             </td>
                         </tr>
                     </tfoot>
@@ -101,8 +105,21 @@ ViewBag.Title = "Rent List";
                 pageLength: 25,
                 dom: '<"html5buttons"B>lTfgitp',
                 buttons: [
-                    { extend: 'excel', title: 'ListRent' },
-                    { extend: 'pdf', title: 'ListRent' },
+                    { extend: 'excel', title: 'ListRent', footer: true },
+                    {
+                        extend: 'pdf', title: 'ListRent', footer: true
+                        , customize: function (doc) {
+                            var rowCount = doc.content[1].table.body.length;
+                            for (i = 1; i < rowCount; i++) {
+                                doc.content[1].table.body[i][0].alignment = 'left';
+                                doc.content[1].table.body[i][1].alignment = 'left';
+                                doc.content[1].table.body[i][2].alignment = 'left';
+                                doc.content[1].table.body[i][3].alignment = 'right';
+                                doc.content[1].table.body[i][4].alignment = 'left';
+                                doc.content[1].table.body[i][5].alignment = 'right';
+                            }
+                        }
+                    },
                 ]
             });
         });

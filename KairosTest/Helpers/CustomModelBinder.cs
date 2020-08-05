@@ -51,7 +51,7 @@ namespace KairosTest.Helpers
                     // Error
                     bindingContext.ModelState.TryAddModelError(
                                             bindingContext.ModelName,
-                                            "Could not parse MyValue.");
+                                            "Must be a number.");
                     return Task.CompletedTask;
                 }
 

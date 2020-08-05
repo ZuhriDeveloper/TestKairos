@@ -53,9 +53,17 @@
                                     <td class="center"> @Html.DisplayFor(modelItem => item.BookTitle)</td>
                                     <td class="center"> @Html.DisplayFor(modelItem => item.Author)</td>
                                     <td class="center"> @Html.DisplayFor(modelItem => item.BookType)</td>
-                                    <td class="center"> @Html.DisplayFor(modelItem => item.RentPrice)</td>
-                                    <td class="center">
+                                    <td class="text-right"> @Html.DisplayFor(modelItem => item.RentPrice)</td>
+                                    <td class="" style="width:200px">
                                         @Html.ActionLink("Edit", "Edit", new { ID = item.ID }, new { @class = "btn btn-info fa fa-paste" })
+
+                                        @Html.ActionLink("Delete", "Delete", new { ID = item.ID }, new { @class = "btn btn-danger fa fa-trash", onclick = "return confirm('Are sure wants to delete this book?');" })
+                                        @*&nbsp;
+                                            <form asp-action="Delete" asp-route-id="@item.ID" method="post">
+                                                <button type="submit" onclick="return confirm('Are you sure you want to delete this book?');" class="btn btn-sm btn-danger">
+                                                    Delete
+                                                </button>
+                                            </form>*@
                                     </td>
 
                                 </tr>
@@ -88,9 +96,29 @@
                 pageLength: 25,
                 dom: '<"html5buttons"B>lTfgitp',
                 buttons: [
-                    { extend: 'copy' },
-                    { extend: 'excel', title: 'ListBook' },
-                    { extend: 'pdf', title: 'ListBook' },
+                    {
+                        extend: 'copy', exportOptions: {
+                            columns: [0, 1, 2, 3]
+                        }
+                    },
+                    {
+                        extend: 'excel', title: 'ListBook', exportOptions: {
+                            columns: [0, 1, 2, 3]
+                        }
+                    },
+                    {
+                        extend: 'pdf', title: 'ListBook', exportOptions: {
+                            columns: [0, 1, 2, 3]
+                        }, customize: function (doc) {
+                            var rowCount = doc.content[1].table.body.length;
+                            for (i = 1; i < rowCount; i++) {
+                                doc.content[1].table.body[i][0].alignment = 'left';
+                                doc.content[1].table.body[i][1].alignment = 'left';
+                                doc.content[1].table.body[i][2].alignment = 'left';
+                                doc.content[1].table.body[i][3].alignment = 'right';
+                            }
+                        }
+                    },
 
                     {
                         extend: 'print',
@@ -101,6 +129,8 @@
                             $(win.document.body).find('table')
                                 .addClass('compact')
                                 .css('font-size', 'inherit');
+                        }, exportOptions: {
+                            columns: [0, 1, 2, 3]
                         }
                     }
                 ]

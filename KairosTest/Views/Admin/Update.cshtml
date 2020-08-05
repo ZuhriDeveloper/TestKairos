@@ -1,21 +1,76 @@
 ﻿@model KairosTest.Models.AppUser
 
 <h1 class="bg-info text-white">Update User</h1>
-<a asp-action="Index" class="btn btn-secondary">Back</a>
-<div asp-validation-summary="All" class="text-danger"></div>
+@*<a asp-action="Index" class="btn btn-secondary">Back</a>
+<div asp-validation-summary="All" class="text-danger"></div>*@
 
 <form asp-action="Update" method="post">
-    <div class="form-group">
-        <label asp-for="Id"></label>
-        <input asp-for="Id" class="form-control" disabled />
-    </div>
+    @*<div class="form-group">
+            <label asp-for="Id"></label>
+            <input asp-for="Id" class="form-control" disabled />
+        </div>*@
     <div class="form-group">
         <label asp-for="Email"></label>
         <input asp-for="Email" class="form-control" />
     </div>
     <div class="form-group">
         <label for="password">Password</label>
-        <input name="password" class="form-control" />
+        <input name="password" type="password" class="form-control" />
     </div>
-    <button type="submit" class="btn btn-primary">Save</button>
+    <a asp-action="Index" class="btn btn-warning">Cancel</a>
+    &nbsp;
+    <button type="submit" class="btn btn-primary">Update</button>
 </form>
+
+<!-- Modal validation -->
+<div class="modal fade" id="infoModal" tabindex="-1" role="dialog" aria-labelledby="errorModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="errorModalLabel">User Management</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div style="color: red; text-align: left;" id="rentbook-info-content">
+                    <ul>
+
+                    </ul>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-info" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    <script type="text/javascript">
+        $(document).ready(function () {
+            if ("@TempData["Error"]" == '') {
+            }
+            else {
+                displayInfoMessage("@TempData["Error"]");
+            }
+
+
+            function displayInfoMessage(message) {
+
+                var str_array = message.split('.');
+
+                for (var i = 0; i < str_array.length; i++) {
+                    str_array[i] = str_array[i].replace(/^\s*/, "").replace(/\s*$/, "");
+                    if (str_array[i] != "") {
+                        $('#rentbook-info-content ul').append('<li>' + str_array[i] + '</li>');
+                    }
+
+                }
+                $('#infoModal').modal('show');
+            }
+
+        });
+    </script>
+}

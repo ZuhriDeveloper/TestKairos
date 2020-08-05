@@ -35,7 +35,7 @@ namespace KairosTest.Controllers
         }
 
         [Authorize(Roles ="Tenant")]
-        public ActionResult Index()
+        public ActionResult Create()
         {
             RentBook data = new RentBook();
 
@@ -51,9 +51,23 @@ namespace KairosTest.Controllers
             return View(data);
         }
 
+        [Authorize(Roles = "Tenant")]
+        public async Task<ActionResult> Index()
+        {
+            List<RentBook> listData = RentMgr.GetList();
+            var user = await userManager.FindByNameAsync(User.Identity.Name);
+            var roles = await userManager.GetRolesAsync(user);
+
+            if (!roles.Contains("Admin"))
+            {
+                listData = listData.Where(x => x.UserName == User.Identity.Name).ToList();
+            }
+            return View(listData);
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Index(RentBook data)
+        public ActionResult Create(RentBook data)
         {
           
 
@@ -70,6 +84,39 @@ namespace KairosTest.Controllers
             data.PricePerDay = book.RentPrice;
             data.UserName = User.Identity.Name;
             
+            RentMgr.Create(data);
+
+            ModelState.Clear();
+            TempData["Message"] = "rent successfully saved";
+
+            return View(data);
+        }
+
+        public IActionResult Edit(int id)
+        {
+            RentBook data = RentMgr.GetByID(id);
+            return View(data);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Edit(RentBook data)
+        {
+
+
+            var listBooks = BookMgr.GetListBook();
+            var bookOptions = new SelectList(listBooks.Select(org =>
+            {
+                return new SelectListItem { Text = org.BookTitle, Value = org.ID.ToString() };
+            }), "Value", "Text");
+
+            ViewData["BookOptions"] = bookOptions;
+
+            var book = BookMgr.GetBookByID(data.BookID);
+            data.RentLenght = (data.EndDate - data.StartDate).Days;
+            data.PricePerDay = book.RentPrice;
+            data.UserName = User.Identity.Name;
+
             RentMgr.Create(data);
 
             ModelState.Clear();
@@ -121,6 +168,12 @@ namespace KairosTest.Controllers
             ViewData["Total"] = totalDisplay;
 
             return View(listData);
+        }
+
+        public IActionResult Delete(int id)
+        {
+            RentMgr.Delete(id);
+            return RedirectToAction("Index");
         }
 
     }

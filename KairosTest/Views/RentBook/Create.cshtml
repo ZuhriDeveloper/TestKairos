@@ -1,0 +1,308 @@
+﻿@model KairosTest.Models.RentBook
+
+@using (Html.BeginForm("Create", "RentBook", FormMethod.Post, new { @class = "form-horizontal", role = "form", id = "frmRentBook" }))
+{
+    @Html.AntiForgeryToken()
+
+    <div class="row wrapper border-bottom white-bg page-heading">
+        <div class="col-lg-9">
+            <h2>Create Book Rent</h2>
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item">
+                    <a href="@Url.Action("Index", "Home")">Home</a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a href="@Url.Action("Index", "RentBook")">Rent List</a>
+                </li>
+                <li class="active breadcrumb-item">
+                    <strong>Create Book Rent</strong>
+                </li>
+            </ol>
+        </div>
+    </div>
+
+    <div class="wrapper wrapper-content animated fadeInRight">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="ibox ">
+
+                    <div class="ibox-content">
+                        <div class="form-group row">
+                            @Html.LabelFor(model => model.BookID, htmlAttributes: new { @class = "control-label col-md-2" })
+                            <div class="col-md-10">
+                                @Html.DropDownListFor(m => m.BookID, (SelectList)ViewData["BookOptions"], "---Select Book---", htmlAttributes: new { @class = "col-md-10", id = "ddlBook" })
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="control-label col-md-2">Author</label>
+                            <div class="col-md-10">
+                                <input type="text" id="txtAuthor" disabled />
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="control-label col-md-2">Book Type</label>
+                            <div class="col-md-10">
+                                <input type="text" id="txtBookType" disabled />
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="control-label col-md-2">Price per Day</label>
+                            <div class="col-md-10">
+                                <input type="text" id="txtPrice" disabled />
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            @Html.LabelFor(model => model.StartDate, htmlAttributes: new { @class = "control-label col-md-2" })
+                            <div class="col-md-10">
+                                <input type="text" id="StartDate" asp-for="StartDate" />
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            @Html.LabelFor(model => model.EndDate, htmlAttributes: new { @class = "control-label col-md-2" })
+                            <div class="col-md-10">
+                                <input type="text" id="EndDate" asp-for="EndDate" />
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="control-label col-md-2">Total</label>
+                            <div class="col-md-10">
+                                <input type="text" id="txtTotal" disabled />
+                            </div>
+                        </div>
+                        @*<div class="form-group row">
+                                @Html.LabelFor(model => model.BookType, htmlAttributes: new { @class = "control-label col-md-2" })
+                                <div class="col-md-10">
+                                    @Html.EditorFor(model => model.BookType)
+                                    @Html.ValidationMessageFor(model => model.BookType, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                @Html.LabelFor(model => model.RentPrice, htmlAttributes: new { @class = "control-label col-md-2" })
+                                <div class="col-md-10">
+                                    @Html.EditorFor(model => model.RentPrice)
+                                    @Html.ValidationMessageFor(model => model.RentPrice, "", new { @class = "text-danger" })
+                                </div>
+                            </div>*@
+                        <div class="form-group">
+                            <div class="col-md-offset-2 col-md-10">
+                                <button type="button" class="btn btn-warning" onclick="location.href='@Url.Action("Index", "RentBook")'">Cancel</button>
+                                <input type="submit" value="Save" id="btnSubmit" class="btn btn-primary" />
+
+                                <div>@ViewBag.Message</div>
+                                <div class="text-danger">@ViewBag.ErrorMessage</div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Modal validation -->
+<div class="modal fade" id="errorModal" tabindex="-1" role="dialog" aria-labelledby="errorModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="errorModalLabel">Rent Book</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div style="color: red; text-align: center;" id="rentbook-error-content"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-info" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <environment names="Development,Staging,Production">
+        <script src="~/lib/dataTables/datatables.min.js"></script>
+        <script src="~/lib/dataTables/dataTables.bootstrap4.min.js"></script>
+        <script src="~/lib/jquery-ui/jquery-ui.js"></script>
+        <link rel="stylesheet" href="~/lib/jquery-ui/themes/base/jquery-ui.css">
+    </environment>
+
+
+
+    <script type="text/javascript">
+
+
+        //$(function () {
+
+
+        //});
+
+        $(document).ready(function () {
+
+             if ("@TempData["Message"]" == '') {
+            }
+            else {
+                   alert("@TempData["Message"]");
+            }
+
+            $('#StartDate').datepicker({
+                dateFormat: 'mm/dd/yy',
+                onSelect: function () {
+                    CalculatePrice();
+                }
+            });
+
+
+
+            $('#EndDate').datepicker({
+                dateFormat: 'mm/dd/yy',
+                onSelect: function () {
+                    CalculatePrice();
+                }
+            });
+
+            $('#StartDate').datepicker('setDate', new Date());
+            $('#EndDate').datepicker('setDate', new Date());
+
+            $('#ddlBook').change(function () {
+                GetBookDetail();
+                CalculatePrice();
+            });
+
+            //$('#EndDate').blur({
+            //    alert('date berubah');
+            //});
+
+            //$('#StartDate').blur({
+            //    CalculatePrice();
+            //});
+
+            //$('#EndDate').change({
+            //    CalculatePrice();
+            //});
+
+
+
+        });
+
+        function GetBookDetail() {
+
+            var bookid = $('#ddlBook').val();
+
+            var urlTarget = '@Url.Action("GetBookDetail", "Book")?bookId=' + bookid;
+
+            //var myData = { bookId: bookid, dateStart: datestart, dateEnd: dateend };
+            //var stringData = JSON.stringify(myData);
+           // alert(urlTarget);
+            $.ajax({
+                url: urlTarget,
+                type: "get",
+                contentType: "application/json; charset=utf-8",
+                //data: JSON.stringify(myData),
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader("XSRF-TOKEN",
+                        $('input:hidden[name="__RequestVerificationToken"]').val());
+                },
+                dataType: "json",
+
+                success: function (data) {
+                    $('#txtAuthor').val(data.author);
+                    $('#txtBookType').val(data.bookType);
+                    $('#txtPrice').val(data.rentPrice);
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    alert(thrownError);
+                }
+            });
+        }
+
+        function CalculatePrice() {
+            var baseurl = '@Context.Request.Scheme' + "://" + '@Context.Request.Host';
+            var bookid = $('#ddlBook').val();
+            var datestart = $('#StartDate').datepicker("getDate");
+            var strdatestart = (datestart.getMonth() + 1) + "/" + datestart.getDate() + "/" + datestart.getFullYear()
+
+           // alert(strdatestart);
+            var dateend = $('#EndDate').datepicker("getDate");
+            var strdateend = (dateend.getMonth() + 1) + "/" + dateend.getDate() + "/" + dateend.getFullYear()
+
+            var urlTarget = '@Url.Action("CalculatePrice", "RentBook")?bookId=' + bookid + '&dateStart=' + strdatestart + '&dateEnd=' + strdateend;
+
+            //var myData = { bookId: bookid, dateStart: datestart, dateEnd: dateend };
+            //var stringData = JSON.stringify(myData);
+           // alert(urlTarget);
+            $.ajax({
+                url: urlTarget,
+                type: "post",
+                contentType: "application/json; charset=utf-8",
+                //data: JSON.stringify(myData),
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader("XSRF-TOKEN",
+                        $('input:hidden[name="__RequestVerificationToken"]').val());
+                },
+                dataType: "json",
+
+                success: function (data) {
+                    $('#txtTotal').val(data);
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    alert(thrownError);
+                }
+            });
+        };
+
+        function validateDateEnd() {
+            var startDateValArr = $('#StartDate').val().split('/');
+            var endDateValArr = $('#EndDate').val().split('/');
+            var startDateVal = new Date(startDateValArr[2], startDateValArr[0] - 1, startDateValArr[1]);
+            var endDateVal = new Date(endDateValArr[2], endDateValArr[0] - 1, endDateValArr[1]);
+
+            if (endDateVal <= startDateVal) {
+                return false;
+            } else {
+                return true;
+            }
+        }
+
+        function validateBookId() {
+            var bookid = $('#ddlBook').val();
+            if (bookid <= 0) {
+                return false;
+            } else {
+                return true;
+            }
+        }
+
+        $('#btnSubmit').click(function (e) {
+            e.preventDefault();
+
+
+            var isValid = validateBookId();
+
+            if (!isValid) {
+                displayErrorMessage('Please choose book.');
+                return false;
+            }
+
+             isValid = validateDateEnd();
+
+            if (!isValid) {
+                displayErrorMessage('Date end must be greater than the date start.');
+                return false;
+            }
+
+
+            $('#frmRentBook').submit();
+        });
+
+        function displayErrorMessage(message) {
+            $('#rentbook-error-content').html(message);
+            $('#errorModal').modal('show');
+        }
+
+
+
+
+    </script>
+}
